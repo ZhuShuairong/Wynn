@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Reset */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        /* Login Form Styling */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #0073e6;
+            color: white;
+        }
+
+        .login-form h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .login-form input {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .login-form button {
+            width: 300px;
+            padding: 10px;
+            background-color: white;
+            color: #0073e6;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .login-form button:hover {
+            background-color: #005bb5;
+            color: white;
+        }
+
+        /* Admin Dashboard Styling */
+        .admin-dashboard {
+            display: none; /* Hidden until login is successful */
+            padding: 20px;
+            background-color: white;
+        }
+
+        .charts-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            width: 48%;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .chart-container canvas {
+            max-height: 200px;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .user-table th, .user-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .user-table th {
+            background-color: #0073e6;
+            color: white;
+        }
+
+        .user-table td button {
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .user-table td button:hover {
+            background-color: #005bb5;
+        }
+
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .confirmation-modal-content h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .confirmation-modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .confirmation-modal-content button {
+            padding: 10px 20px;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .confirmation-modal-content button:hover {
+            background-color: #005bb5;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #0073e6;
+        }
+
+        .back-to-homepage {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #0073e6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .back-to-homepage:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Form -->
+<div class="login-form" id="loginForm">
+    <h2>Admin Login</h2>
+    <input type="text" id="adminUsername" placeholder="Admin Username" required>
+    <input type="password" id="adminPassword" placeholder="Admin Password" required>
+    <button onclick="authenticateAdmin()">Login</button>
+    <br><br>
+    <button onclick="window.location.href='index.html'">Back to Homepage</button>
+</div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="adminDashboard">
+        <a href="index.html" class="back-to-homepage">Back to Homepage</a>
+
+        <!-- Charts Container -->
+        <div class="charts-container">
+            <!-- Line Graph -->
+            <div class="chart-container">
+                <h3>User Growth</h3>
+                <canvas id="lineChart"></canvas>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="chart-container">
+                <h3>Top 10 Interests</h3>
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <!-- User Table -->
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Password</th>
+                    <th>Preferences (Interests)</th>
+                    <th>Graph Types</th>
+                    <th>Reports</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>user1</td>
+                    <td>password123</td>
+                    <td>Finance, Technology</td>
+                    <td>Bar Chart, Line Graph</td>
+                    <td>Report1.pdf, Report2.pdf</td>
+                    <td>
+                        <button onclick="editUser(this)">Edit</button>
+                        <button onclick="confirmRemoval(this)">Remove</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>user2</td>
+                    <td>securepass</td>
+                    <td>Healthcare, Sports</td>
+                    <td>Pie Chart</td>
+                    <td>Report3.pdf</td>
+                    <td>
+                        <button onclick="editUser(this)">Edit</button>
+                        <button onclick="confirmRemoval(this)">Remove</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="confirmation-modal" id="confirmationModal">
+        <div class="confirmation-modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Confirm Removal</h3>
+            <p>Please wait 3 seconds before confirming removal...</p>
+            <button id="confirmButton" disabled>Confirm Removal</button>
+        </div>
+    </div>
+
+    <script>
+        // Admin Authentication
+        function authenticateAdmin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === "admin" && password === "admin123") {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                renderCharts();
+            } else {
+                alert("Invalid credentials. Please try again.");
+            }
+        }
+
+        // Render Charts
+        function renderCharts() {
+            // Line Chart: User Growth
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            const lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                    datasets: [{
+                        label: 'Number of Users',
+                        data: [10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+                        borderColor: '#0073e6',
+                        backgroundColor: 'rgba(0, 115, 230, 0.2)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Bar Chart: Top 10 Interests
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            const barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Finance', 'Technology', 'Healthcare', 'Sports', 'Entertainment', 'Education', 'Travel', 'Food', 'Fashion', 'Gaming'],
+                    datasets: [{
+                        label: 'Interest Popularity',
+                        data: [120, 100, 90, 80, 70, 60, 50, 40, 30, 20],
+                        backgroundColor: '#0073e6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Edit User Functionality
+        function editUser(button) {
+            const row = button.parentElement.parentElement;
+            const cells = row.querySelectorAll('td');
+
+            // Convert cells to editable inputs
+            cells.forEach((cell, index) => {
+                if (index !== cells.length - 1) { // Exclude the Actions column
+                    const currentValue = cell.textContent;
+                    cell.innerHTML = `<input type="text" value="${currentValue}">`;
+                }
+            });
+
+            // Change Edit button to Save
+            button.textContent = "Save";
+            button.onclick = () => saveUser(button);
+        }
+
+        // Save User Changes
+        function saveUser(button) {
+            const row = button.parentElement.parentElement;
+            const cells = row.querySelectorAll('td');
+
+            // Save changes back to the table
+            cells.forEach((cell, index) => {
+                if (index !== cells.length - 1) { // Exclude the Actions column
+                    const input = cell.querySelector('input');
+                    cell.textContent = input.value;
+                }
+            });
+
+            // Change Save button back to Edit
+            button.textContent = "Edit";
+            button.onclick = () => editUser(button);
+        }
+
+        // Confirm Removal
+        function confirmRemoval(button) {
+            const modal = document.getElementById('confirmationModal');
+            const confirmButton = document.getElementById('confirmButton');
+            modal.style.display = 'flex';
+
+            let countdown = 3;
+            const interval = setInterval(() => {
+                countdown--;
+                confirmButton.textContent = `Confirm Removal (${countdown}s)`;
+
+                if (countdown === 0) {
+                    clearInterval(interval);
+                    confirmButton.disabled = false;
+                    confirmButton.textContent = "Confirm Removal";
+                }
+            }, 1000);
+
+            confirmButton.onclick = () => {
+                removeUser(button);
+                closeModal();
+            };
+        }
+
+        // Close Modal
+        function closeModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none';
+        }
+
+        // Remove User
+        function removeUser(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+        }
+    </script>
+
+</body>
+</html>

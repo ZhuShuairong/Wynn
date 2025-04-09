@@ -1,5 +1,6 @@
 <?php
 // Database configuration
+$servername = "localhost"; // Replace with your actual database host
 $username = "root"; // Replace with your database username
 $password = "";      // Replace with your database password
 $dbname = "wynn_fyp";

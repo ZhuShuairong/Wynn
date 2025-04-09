@@ -215,8 +215,6 @@
     <nav class="header-nav">
       <a href="index.html">Home</a>
       <a href="customization.html">Dashboard Customization</a>
-      <a href="report.php">Report</a>
-      <a href="edit_interest.html">Edit Interest</a>
       <a href="logout.html">Logout</a>
       <a href="admin.html">Admin Login</a>
     </nav>
@@ -387,6 +385,14 @@
         });
     }
 });
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user_id');
+    if (userId) {
+      console.log("User ID:", userId); // Debug: Log the User_ID
+      // Optionally, store the User_ID in local storage or perform additional actions
+    }
+  });
   </script>
 </body>
 </html>

@@ -11,7 +11,7 @@ set_time_limit(300);
 ini_set('memory_limit', '512M');
 
 define('SCRIPT_DIR', __DIR__);
-$tcpdfPath = SCRIPT_DIR . '/tcpdf/tcpdf.php';
+$tcpdfPath = SCRIPT_DIR . 'tcpdf/tcpdf.php';
 if (!file_exists($tcpdfPath)) {
     $errorMsg = "TCPDF library not found at: " . htmlspecialchars($tcpdfPath); error_log($errorMsg);
     header("Content-Type: text/plain; charset=utf-8"); echo "Server Configuration Error: PDF library missing."; exit;
