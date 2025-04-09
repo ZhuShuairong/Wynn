@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FinSight – Dashboard</title>
+  <style>
+    /* Basic Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      background-color: #f2f2f2;
+    }
+    /* Header */
+    header {
+      display: flex;
+      flex-direction: column;  /* Stack title and nav vertically */
+      align-items: center;     /* Center horizontally */
+      background: linear-gradient(135deg, #0A74DA 0%, #0570b8 100%);
+      color: #fff;
+      padding: 1rem 2rem;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      text-align: center; /* Ensures the title text is centered */
+    }
+    .header-nav {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+    }
+    .header-nav a {
+      text-decoration: none;
+      background-color: #0A74DA;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .header-nav a:hover {
+      background-color: #065c9c;
+    }
+    /* Layout: Sidebar + Main Content */
+    .layout { display: flex; }
+    aside.sidebar {
+      position: fixed;
+      top: 150px;
+      left: 0;
+      width: 320px;
+      height: calc(100vh - 80px);
+      background-color: transparent;
+      border-right: transparent;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      margin-bottom: 1rem;
+      color: #0A74DA;
+      font-size: 1.2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    table thead {
+      background-color: #eef6ff;
+    }
+    table th, table td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+    table thead th {
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #333;
+    }
+    table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .topic-link {
+      color: #0A74DA;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .topic-link:hover {
+      text-decoration: underline;
+    }
+    /* Main Content */
+    main.content {
+      margin-left: 280px; /* Leaves space for fixed sidebar */
+      padding: 2rem;
+      flex: 1;
+      min-height: calc(100vh - 80px);
+    }
+    .dashboard-controls {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dashboard-controls button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background-color: #0A74DA;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .dashboard-controls button:hover {
+      background-color: #065c9c;
+    }
+    .dashboard-controls .last-update {
+      color: grey;
+      font-size: 0.8rem;
+    }
+    /* Stats Row */
+    .stats-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      flex: 1 1 200px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      padding: 1rem;
+      min-width: 200px;
+    }
+    .stat-card h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #0A74DA;
+    }
+    .stat-card p {
+      color: #666;
+    }
+    /* Charts Section */
+    .charts-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .chart-container {
+      width: 1000px;
+      height: 600px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .chart-container h3 {
+      margin-bottom: 0.5rem;
+      color: #0A74DA;
+    }
+    .chart-canvas {
+      width: 100% !important;
+      height: 90% !important;
+    }
+    /* Specific container for polar area */
+    .polar-area-container {
+      display: flex;
+      flex-direction: column;  /* Stack title and chart vertically */
+      justify-content: center;  /* Center contents vertically */
+      align-items: center;  /* Center contents horizontally */
+      width: 1000px;
+      height: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1rem;
+      text-align: center; /* Ensures text stays centered */
+    }
+    /* Ensure polar area canvas fills its container */
+    .polar-area-canvas {
+      width: 550px !important;
+      height: 500px !important;
+      align-self: center;
+      margin: auto;
+    }
+    /* Footer */
+    footer {
+      background-color: #fff;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+      border-top: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>FinSight Dashboard</h1>
+    <nav class="header-nav">
+      <a href="index.html">Home</a>
+      <a href="customization.html">Dashboard Customization</a>
+      <a href="report.php">Report</a>
+      <a href="edit_interest.html">Edit Interest</a>
+      <a href="logout.html">Logout</a>
+      <a href="admin.html">Admin Login</a>
+    </nav>
+  </header>
+  <!-- Main Layout: Sidebar + Content -->
+  <div class="layout">
+    <!-- Sidebar (Fixed) -->
+    <aside class="sidebar">
+      <h2>Trending Topics</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th># Articles</th>
+          </tr>
+        </thead>
+        <tbody id="trending-topics-body">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="content">
+      <!-- Dashboard Controls -->
+      <div class="dashboard-controls">
+        <button onclick="location.reload()">Refresh</button>
+        <span id="lastUpdate" class="last-update"></span>
+      </div>
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <h2 id="active-interests">4</h2>
+          <p>Active Interests</p>
+        </div>
+        <div class="stat-card">
+          <h2 id="articles-tracked">0</h2>
+          <p>Articles Tracked</p>
+        </div>
+      </div>
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <div class="chart-container">
+          <h3>Number of articles (monthly)</h3>
+          <canvas id="lineChart" class="chart-canvas"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3>Distribution of articles</h3>
+          <canvas id="barChart" class="chart-canvas"></canvas>
+        </div>
+        <div class="chart-container polar-area-container">
+          <h3>Polar Area: Distribution per Topic</h3>
+          <canvas id="polarArea" class="polar-area-canvas"></canvas>
+        </div>
+      </div>
+    </main>
+  </div>
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 FinSight. All rights reserved.</p>
+  </footer>
+  <!-- Include Chart.js v3.9.1 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Fetch dashboard data
+    fetch('get_dashboard_data.php')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetched Data:', data); // Debug: Log the fetched data
+
+            // Validate data structure
+            if (!data || !Array.isArray(data.trending_topics) || typeof data.total_articles !== 'number') {
+                throw new Error('Invalid data structure');
+            }
+
+            // Update trending topics table
+            const tbody = document.querySelector('#trending-topics-body');
+            tbody.innerHTML = data.trending_topics.map(topic => `
+                <tr>
+                    <td><a href="trending_topics.html?topic=${encodeURIComponent(topic.Topic)}" class="topic-link">${topic.Topic}</a></td>
+                    <td>${topic.article_count}</td>
+                </tr>
+            `).join('');
+
+            // Update articles tracked count
+            document.getElementById('articles-tracked').textContent = data.total_articles;
+
+            // Pass data to charts
+            updateLineChart(data.trending_topics.map(topic => topic.Topic), data.trending_topics.map(topic => topic.article_count));
+            updateBarChart(data.trending_topics.map(topic => topic.Topic), data.trending_topics.map(topic => topic.article_count));
+            updatePolarAreaChart(data.trending_topics.map(topic => topic.Topic), data.trending_topics.map(topic => topic.article_count));
+        })
+        .catch(error => {
+            console.error('Error fetching dashboard data:', error);
+            alert('Failed to load dashboard data. Please try again.');
+        });
+
+    // Line Chart
+    function updateLineChart(labels, data) {
+        const ctxLine = document.getElementById('lineChart').getContext('2d');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Articles per Topic',
+                    data: data,
+                    borderColor: '#0A74DA',
+                    backgroundColor: 'rgba(10, 116, 218, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    // Bar Chart
+    function updateBarChart(labels, data) {
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#0A74DA', '#f39c12', '#2ecc71', '#e74c3c']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // Polar Area Chart
+    function updatePolarAreaChart(labels, data) {
+        const ctxPolar = document.getElementById('polarArea').getContext('2d');
+        new Chart(ctxPolar, {
+            type: 'polarArea',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#0A74DA', '#f39c12', '#2ecc71', '#e74c3c']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true },
+                    title: { display: true, text: '' }
+                }
+            }
+        });
+    }
+});
+  </script>
+</body>
+</html>

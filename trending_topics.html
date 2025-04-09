@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FinSight – Trending Topics</title>
+  <style>
+    /* Basic Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { /* Ensure html and body take full height */
+        height: 100%;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      background-color: #f2f2f2;
+      /* Removed padding-top, handle spacing differently */
+      display: flex; /* Use flexbox for overall page layout */
+      flex-direction: column; /* Stack header, layout, footer vertically */
+      min-height: 100vh; /* Make body at least the viewport height */
+    }
+
+    /* Header */
+    header {
+      /* Removed fixed positioning - let it be part of the flex flow */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(135deg, #0A74DA 0%, #0570b8 100%);
+      color: #fff;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      flex-shrink: 0; /* Prevent header from shrinking */
+    }
+    header h1 { margin: 0; font-weight: 600; letter-spacing: 1px; margin-bottom: 0.5rem; text-align: center; }
+    .header-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+    .header-nav a { text-decoration: none; background-color: rgba(255, 255, 255, 0.15); color: #fff; padding: 0.5rem 1rem; border-radius: 5px; font-weight: 600; transition: background-color 0.2s; border: 1px solid rgba(255, 255, 255, 0.3); }
+    .header-nav a:hover { background-color: rgba(255, 255, 255, 0.3); }
+
+    /* Layout: Sidebar + Main Content */
+    .layout {
+      display: flex;
+      flex-grow: 1; /* Crucial: Make this container grow to fill remaining space */
+      padding: 1.5rem 1rem; /* Add padding around the layout */
+      gap: 1.5rem;
+      width: 100%; /* Ensure layout takes full width */
+      max-width: 1400px; /* Optional: Set a max width for very wide screens */
+      margin: 0 auto; /* Center layout if max-width is set */
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      padding: 1rem;
+      background-color: #fff; /* Added background for clarity */
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      height: fit-content; /* Let height be determined by content */
+    }
+    .sidebar h2 { margin-bottom: 1rem; color: #0A74DA; font-size: 1.2rem; border-bottom: 2px solid #0A74DA; padding-bottom: 0.5rem; }
+    .sidebar table { width: 100%; border-collapse: collapse; background-color: transparent; } /* Removed background from table */
+    .sidebar table thead { background-color: transparent; } /* Removed thead background */
+    .sidebar table th, .sidebar table td { text-align: left; padding: 0.75rem 0.5rem; border-bottom: 1px solid #eee; font-size: 0.9rem; } /* Reduced padding slightly */
+    .sidebar table thead th { font-weight: 700; color: #333; text-transform: none; } /* Removed uppercase */
+    .sidebar table tbody tr:last-child td { border-bottom: none; }
+    .sidebar .topic-link { color: #0A74DA; text-decoration: none; font-weight: 600; display: block; padding: 0.25rem 0; } /* Adjusted padding */
+    .sidebar .topic-link:hover { text-decoration: underline; background-color: #f0f8ff; }
+
+    /* Main Content */
+    main.content {
+      flex-grow: 1;
+      /* Optional styling for main area */
+      /* background-color: #fff; */
+      /* padding: 1.5rem; */
+      /* border-radius: 8px; */
+      /* box-shadow: 0 1px 3px rgba(0,0,0,0.1); */
+    }
+    .report-button-container { margin-bottom: 1.5rem; text-align: right; }
+    .report-btn { display: inline-block; text-decoration: none; background-color: #28a745; color: #fff; padding: 0.6rem 1.2rem; border-radius: 5px; font-weight: 600; transition: background-color 0.2s; border: none; cursor: pointer; }
+    .report-btn:hover { background-color: #218838; }
+    .topic-entries h2 { margin-bottom: 1rem; color: #333; font-size: 1.4rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ddd;}
+
+    /* Article Box Styling */
+    .article-box { background-color: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); padding: 1rem 1.5rem; margin-bottom: 1rem; text-align: left; }
+    .article-box .article-link { font-weight: 600; font-size: 1.1rem; color: #0A74DA; text-decoration: none; display: block; margin-bottom: 0.3rem; }
+    .article-box .article-link:hover { text-decoration: underline; }
+    .article-box .created-time { display: block; color: #666; font-size: 0.85rem; }
+
+    /* Footer */
+    footer {
+      background-color: #e9ecef;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+      border-top: 1px solid #dee2e6;
+      flex-shrink: 0; /* Prevent footer from shrinking */
+      margin-top: auto; /* Pushes footer down in flex column */
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+      <h1>FinSight Dashboard</h1>
+      <nav class="header-nav">
+          <a href="dashboard.html">Back to Dashboard</a>
+          <a href="customization.html">Dashboard Customization</a>
+          <!-- Removed Report and Edit Interest links -->
+          <a href="logout.php">Logout</a> <!-- Assuming server-side -->
+          <a href="admin.php">Admin Login</a> <!-- Assuming server-side -->
+      </nav>
+  </header>
+
+  <!-- Main Layout: Sidebar + Content -->
+  <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+          <h2>Trending Topics</h2>
+          <table>
+              <thead>
+                  <tr>
+                      <th>Topic</th>
+                      <th># Articles</th>
+                  </tr>
+              </thead>
+              <tbody id="trending-topics-body">
+                  <!-- Placeholder while loading -->
+                  <tr><td colspan="2">Loading topics...</td></tr>
+              </tbody>
+          </table>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="content">
+          <div class="topic-entries">
+              <!-- Container for the dynamic report button -->
+              <div class="report-button-container" id="report-button-area"></div>
+              <!-- Heading dynamically updated by JS -->
+              <h2 id="topic-main-heading">Select a Topic</h2>
+              <!-- Article list dynamically updated by JS -->
+              <div class="article-boxes" id="article-boxes-area">
+                  <p>Please select a topic from the sidebar to view related articles.</p>
+              </div>
+          </div>
+      </main>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+      <p>© 2025 FinSight. All rights reserved.</p>
+  </footer>
+
+  <!-- JavaScript Section -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get topic from URL query parameter (?topic=...)
+        const params = new URLSearchParams(window.location.search);
+        const topic = params.get('topic'); // Will be null if no topic is in the URL
+
+        // Get references to DOM elements
+        const topicHeading = document.getElementById('topic-main-heading');
+        const articleBoxes = document.getElementById('article-boxes-area');
+        const reportButtonContainer = document.getElementById('report-button-area');
+        const sidebarTopicsBody = document.getElementById('trending-topics-body');
+
+        // --- Populate Sidebar Topics (Always runs) ---
+        fetch('get_dashboard_data.php')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok for dashboard data');
+                return response.json();
+            })
+            .then(data => {
+                // Validate response structure
+                if (!Array.isArray(data.trending_topics)) {
+                    throw new Error('Invalid data structure: trending_topics is not an array');
+                }
+                // Populate the sidebar table body
+                if (sidebarTopicsBody) {
+                    if (data.trending_topics.length > 0) {
+                         // Create table rows from the fetched topic data
+                         sidebarTopicsBody.innerHTML = data.trending_topics.map(t => `
+                            <tr>
+                              <td><a href="trending_topics.html?topic=${encodeURIComponent(t.Topic)}" class="topic-link">${t.Topic}</a></td>
+                              <td>${t.article_count}</td>
+                            </tr>
+                          `).join('');
+                    } else {
+                        // Message if no topics are returned
+                         sidebarTopicsBody.innerHTML = '<tr><td colspan="2">No trending topics found.</td></tr>';
+                    }
+                }
+            })
+            .catch(error => {
+                // Handle errors fetching sidebar data
+                console.error('Error fetching dashboard data for sidebar:', error);
+                if (sidebarTopicsBody) {
+                    sidebarTopicsBody.innerHTML = '<tr><td colspan="2">Error loading topics.</td></tr>';
+                }
+            });
+
+        // --- Populate Main Content Area (Only if a topic is selected in the URL) ---
+        if (topic) {
+            const decodedTopic = decodeURIComponent(topic); // Decode topic name for display
+
+            // Update the main heading
+            if (topicHeading) {
+                topicHeading.textContent = `Articles Related to "${decodedTopic}"`;
+            }
+
+            // Add the "View Report Summary" Button dynamically
+            if (reportButtonContainer) {
+                 reportButtonContainer.innerHTML = ''; // Clear placeholder/previous button
+                 const reportBtn = document.createElement('a');
+                 reportBtn.href = `report.php?topic=${encodeURIComponent(topic)}`; // Link to report.php with the current topic
+                 reportBtn.textContent = `View Report Summary for "${decodedTopic}"`;
+                 reportBtn.classList.add('report-btn');
+                 reportBtn.target = "_blank"; // Open report in a new tab
+                 reportButtonContainer.appendChild(reportBtn); // Add button to the page
+            }
+
+            // Fetch and display articles for the selected topic
+            if (articleBoxes) {
+                articleBoxes.innerHTML = `<p>Loading articles for "${decodedTopic}"...</p>`; // Show loading message
+                fetch(`get_specific_topic.php?topic=${encodeURIComponent(topic)}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok for specific topic');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Validate the response structure
+                        if (!Array.isArray(data)) {
+                            throw new Error('Invalid data structure for specific topic');
+                        }
+                        // Display articles or "not found" message
+                        if (data.length === 0) {
+                            articleBoxes.innerHTML = `<div class="article-box">No articles found for "${decodedTopic}".</div>`;
+                        } else {
+                            // Generate HTML for each article box
+                            articleBoxes.innerHTML = data.map(entry => `
+                                <div class="article-box">
+                                    <a href="${entry.Link}" target="_blank" class="article-link">${entry.Title}</a>
+                                    <span class="created-time">${entry.Created_Time || 'N/A'}</span>
+                                </div>
+                            `).join('');
+                        }
+                    })
+                    .catch(error => {
+                        // Handle errors fetching article data
+                        console.error('Error fetching specific topic data:', error);
+                        articleBoxes.innerHTML = `<div class="article-box">Error loading articles for "${decodedTopic}". Please try again.</div>`;
+                    });
+            }
+
+        } else {
+            // Default view when no topic is selected in the URL
+            if (topicHeading) {
+                topicHeading.textContent = "Select a Topic"; // Reset heading
+            }
+             if (reportButtonContainer) {
+                 reportButtonContainer.innerHTML = ''; // Ensure no report button is shown
+            }
+            if (articleBoxes) {
+                // Keep the default message defined in the HTML
+                // articleBoxes.innerHTML = '<p>Please select a topic from the sidebar to view related articles.</p>';
+            }
+        }
+    });
+  </script>
+</body>
+</html>
