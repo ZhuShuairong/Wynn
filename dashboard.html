@@ -30,8 +30,9 @@
     .header-nav {
       display: flex;
       gap: 15px;
-      justify-content: center;
+      justify-content: flex-end;  /* Align all navigation buttons to the right */
       align-items: center;
+      width: 100%;
     }
     .header-nav a {
       text-decoration: none;
@@ -45,23 +46,33 @@
     .header-nav a:hover {
       background-color: #065c9c;
     }
+    /* Removed margin-left auto from help-button */
+    .header-nav a.help-button {
+      background-color: #065c9c;
+    }
     /* Layout: Sidebar + Main Content */
     .layout { display: flex; }
     aside.sidebar {
-      position: fixed;
-      top: 150px;
+      position: fixed; /* Keeps the sidebar fixed on the page */
+      top: 150px; /* Adjust this value based on your header height */
       left: 0;
       width: 320px;
-      height: calc(100vh - 80px);
-      background-color: transparent;
-      border-right: transparent;
+      max-height: calc(100vh - 150px); /* Limits the height of the sidebar to the viewport minus the header */
+      overflow-y: auto; /* Enables vertical scrolling if content overflows */
+      background-color: #ffffff00; /* Optional: Adds a background color for better visibility */
+      border-right: 1px solid #ddd; /* Optional: Adds a border for separation */
       padding: 1rem;
-      overflow-y: auto;
     }
     .sidebar h2 {
       margin-bottom: 1rem;
       color: #0A74DA;
       font-size: 1.2rem;
+    }
+    /* Instructional paragraph styling under Trending Topics */
+    .sidebar p {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 1rem;
     }
     table {
       width: 100%;
@@ -207,16 +218,17 @@
       border-top: 1px solid #ddd;
     }
   </style>
+
 </head>
 <body>
   <!-- Header -->
   <header>
     <h1>FinSight Dashboard</h1>
     <nav class="header-nav">
-      <a href="index.html">Home</a>
       <a href="customization.html">Dashboard Customization</a>
       <a href="logout.html">Logout</a>
-      <a href="admin.html">Admin Login</a>
+      <!-- Help button placed at the right side -->
+      <a href="help.html" class="help-button">Help</a>
     </nav>
   </header>
   <!-- Main Layout: Sidebar + Content -->
@@ -224,6 +236,8 @@
     <!-- Sidebar (Fixed) -->
     <aside class="sidebar">
       <h2>Trending Topics</h2>
+      <!-- Instructional paragraph added below Trending Topics -->
+      <p>Explore the articles and a summary by pressing the topics below.</p>
       <table>
         <thead>
           <tr>
@@ -384,7 +398,8 @@
             }
         });
     }
-});
+  });
+  
   document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('user_id');

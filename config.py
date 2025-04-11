@@ -131,7 +131,7 @@ REPORT_GENERATOR_INPUT_DIR = CLEANED_CONTENT_DIR_1 # Usually uses cleaned conten
 OUTPUT_REPORT_FILE = "market_report.txt"
 
 # GEMINI_API_KEY = "AIzaSy..." # Commented out - Prefer using GOOGLE_API_KEY set via env
-GEMINI_API_MODEL = "gemini-1.5-flash-latest" # Can be same or different from tagging model
+GEMINI_API_MODEL = "gemini-2.0-flash" # Can be same or different from tagging model
 # GEMINI_API_URL_TEMPLATE = "..." # Commented out - logic likely in report_generator.py
 
 REQUEST_TIMEOUT = 360 # Timeout for report generation requests
@@ -143,25 +143,31 @@ if OUTPUT_REPORT_FILE not in OUTPUT_FILES_TO_CLEAN:
 
 REPORT_PROMPT_TEMPLATE = """
 请根据以下合并的新闻文章内容，生成一份 **专业、深入、详尽且全面** 的 **简体中文** 市场分析报告。
+
 **极其重要的最终指示 (必须严格遵守):**
-1.  **输出形式:**
-    *   报告必须由一系列 **“小标题 + 分析段落”** 的组合构成。
+
+1.  **输出形式与结构:**
+    *   报告 **最多包含 7 个** 由 **“小标题 + 分析段落”** 构成的组合。**严格遵守此数量上限。**
     *   **每个分析段落前必须有一个单独占行的小标题**。
-    *   小标题应 **简洁且信息丰富**，准确概括其后段落的核心内容。**小标题格式示例：** `**小标题文本**` （即用 Markdown 加粗，如果无法加粗，则使用普通文本）。
+    *   小标题应 **简洁且信息丰富**，准确概括其后段落的核心内容。**小标题格式示例：** `**小标题文本**` （如果无法加粗，则使用普通文本）。
     *   小标题行之后紧接着是对应的 **纯文本分析段落**。
     *   每个 **“小标题 + 段落”** 组合之间用 **一个空行** 分隔。
     *   **这是唯一的输出形式**。
+
 2.  **内容要求:**
     *   **请专注于从提供的文本中提取和分析信息**。如果文本中没有明确提及年份，请基于上下文推断或总结普遍趋势，而不是强行过滤特定年份（例如，不要强行只显示 2025 年，除非文本明确支持）。
     *   **直接开始** 撰写 **第一个小标题** 和对应的市场分析核心段落。
     *   对文章内容进行 **深度分析和综合阐述**。详细解释关键事件、数据或趋势的 **背景和潜在意义**。整合不同信息点，深入挖掘市场驱动因素、挑战及机遇。
-    *   所有分析内容组织成 **内容丰富、逻辑连贯、论述充分** 的段落流，并配有对应小标题。
+    *   所有分析内容组织成 **内容丰富、逻辑连贯、论述充分** 的段落流，**并确保各分析段落的长度大致均衡（例如，每段控制在相似的句子数量或字数范围内，避免出现过长或过短的段落）**，同时均配有对应小标题。
     *   语言专业、客观、流畅，并且 **详尽具体**。
     *   **优先关注或总结最新信息**（如果文本中有时间线索）。
     *   **完全禁止** 包含任何形式的 **报告整体标题、章节标题（区别于段落小标题）**、介绍性语句（如“这是市场报告：”）、总结性语句（如“总之，”）、列表标记（如 *、-、1.）、格式标记（如 ```` ```），或者任何 **非小标题行或纯粹分析段落本身** 的内容。
     *   **绝对禁止** 包含任何关于 **你的指令或关于你正在生成报告这个事实** 的元文本。
+
 以下是新闻文章的合并内容：
+
 {combined_news_content}
+
 --- 新闻文章结束 ---
 """
 
@@ -171,8 +177,4 @@ DB_CONFIG = {
     'password': '',
     'database': 'wynn_fyp',
     'unix_socket': '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock'
-    # Consider adding host, port if not using socket, connection timeouts etc.
-    # 'host': '127.0.0.1',
-    # 'port': 3306,
-    # 'connection_timeout': 10
 }

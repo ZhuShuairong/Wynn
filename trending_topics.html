@@ -110,7 +110,6 @@
           <a href="customization.html">Dashboard Customization</a>
           <!-- Removed Report and Edit Interest links -->
           <a href="logout.php">Logout</a> <!-- Assuming server-side -->
-          <a href="admin.php">Admin Login</a> <!-- Assuming server-side -->
       </nav>
   </header>
 
@@ -215,7 +214,7 @@
                  reportButtonContainer.innerHTML = ''; // Clear placeholder/previous button
                  const reportBtn = document.createElement('a');
                  reportBtn.href = `report.php?topic=${encodeURIComponent(topic)}`; // Link to report.php with the current topic
-                 reportBtn.textContent = `View Report Summary for "${decodedTopic}"`;
+                 reportBtn.textContent = `View And Download Report Summary for "${decodedTopic}"`;
                  reportBtn.classList.add('report-btn');
                  reportBtn.target = "_blank"; // Open report in a new tab
                  reportButtonContainer.appendChild(reportBtn); // Add button to the page
@@ -234,12 +233,28 @@
                         if (!Array.isArray(data)) {
                             throw new Error('Invalid data structure for specific topic');
                         }
-                        // Display articles or "not found" message
-                        if (data.length === 0) {
-                            articleBoxes.innerHTML = `<div class="article-box">No articles found for "${decodedTopic}".</div>`;
+
+                        // --- FILTERING LOGIC START ---
+                        const seenTitles = new Set();
+                        const uniqueArticles = data.filter(entry => {
+                            // Normalize title (e.g., trim whitespace) for more reliable comparison
+                            const normalizedTitle = entry.Title ? entry.Title.trim() : null;
+                            // Only process if title is not null/empty
+                            if (normalizedTitle && !seenTitles.has(normalizedTitle)) {
+                                seenTitles.add(normalizedTitle); // Mark this title as seen
+                                return true; // Keep this article
+                            }
+                            return false; // Discard article (empty title or duplicate)
+                        });
+                        // --- FILTERING LOGIC END ---
+
+
+                        // Display articles or "not found" message using the *filtered* list
+                        if (uniqueArticles.length === 0) { // Check the length of the filtered array
+                            articleBoxes.innerHTML = `<div class="article-box">No unique articles found for "${decodedTopic}".</div>`;
                         } else {
-                            // Generate HTML for each article box
-                            articleBoxes.innerHTML = data.map(entry => `
+                            // Generate HTML for each unique article box from the filtered list
+                            articleBoxes.innerHTML = uniqueArticles.map(entry => `
                                 <div class="article-box">
                                     <a href="${entry.Link}" target="_blank" class="article-link">${entry.Title}</a>
                                     <span class="created-time">${entry.Created_Time || 'N/A'}</span>
@@ -269,5 +284,3 @@
         }
     });
   </script>
-</body>
-</html>

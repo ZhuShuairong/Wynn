@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FinSight – Dashboard Customization</title>
+  <!-- Link to your main CSS file; adjust path as needed -->
+  <link rel="stylesheet" href="static/css/main.css">
+  <style>
+    /* Optional inline styles if you haven’t defined them in main.css */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #0A74DA;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 2rem;
+      flex: 1; /* so footer sits at the bottom if content is short */
+    }
+
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .top-buttons a {
+      background-color: #0A74DA;
+      color: #fff;
+      text-decoration: none;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .top-buttons a:hover {
+      background-color: #085aab;
+    }
+
+    /* Form styling */
+    form {
+      display: inline-block; /* let the form shrink-wrap its contents */
+      text-align: left;      /* align labels and radios on the left */
+      margin-top: 1rem;
+    }
+    form h3 {
+      color: #0A74DA;
+      margin-bottom: 0.5rem;
+    }
+
+    label {
+      display: block; /* each option on its own line */
+      margin: 0.5rem 0;
+    }
+
+    button[type="submit"] {
+      background-color: #0A74DA;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button[type="submit"]:hover {
+      background-color: #085aab;
+    }
+
+    footer {
+      background-color: #f4f4f4;
+      text-align: center;
+      padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Dashboard Customization</h1>
+  </header>
+
+  <main class="container">
+    <div class="top-buttons">
+      <!-- Home button on the left -->
+      <a href="index.html">Home</a>
+      <!-- Possibly link back to Dashboard on the right -->
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+
+    <p>
+      Select the type of display and metric you wish to apply in your dashboard.
+    </p>
+
+    <form>
+      <h3>Choose Display Type</h3>
+      <label>
+        <input type="checkbox" name="display_type" value="wordcloud">
+        Word Cloud
+      </label>
+      <label>
+        <input type="checkbox" name="display_type" value="linecharts">
+        Line Charts
+      </label>
+      <label>
+        <input type="checkbox" name="display_type" value="heatmaps">
+        Heat Maps (Topic Density)
+      </label>
+      <label>
+        <input type="checkbox" name="display_type" value="barcharts">
+        Bar Charts
+      </label>
+      <label>
+        <input type="checkbox" name="display_type" value="networkdiagrams">
+        Network Diagrams
+      </label>
+    
+      <h3>Choose Metric</h3>
+      <label>
+        <input type="checkbox" name="metric" value="recency">
+        Recency
+      </label>
+      <label>
+        <input type="checkbox" name="metric" value="frequency">
+        Frequency of Topics
+      </label>
+    
+      <button type="submit">Update preference</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FinSight. All rights reserved.</p>
+  </footer>
+  <script>
+    document.querySelector('form').addEventListener('submit', function (event) {
+      event.preventDefault(); // Prevent default form submission
+  
+      // Get selected display types
+      const displayTypes = Array.from(
+        document.querySelectorAll('input[name="display_type"]:checked')
+      ).map((checkbox) => checkbox.value);
+  
+      // Get selected metrics
+      const metrics = Array.from(
+        document.querySelectorAll('input[name="metric"]:checked')
+      ).map((checkbox) => checkbox.value);
+  
+      // Get User_ID from query string
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('user_id');
+      if (!userId) {
+        alert('User ID is missing. Please log in again.');
+        return;
+      }
+  
+      // Save preferences to the server
+      fetch('update_preferences.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,
+          display_types: displayTypes,
+          metrics: metrics
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Preferences saved successfully!');
+            // Optionally, update Local Storage as well
+            localStorage.setItem('dashboardPreferences', JSON.stringify({
+              displayTypes,
+              metrics
+            }));
+          } else {
+            alert('Failed to save preferences. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error saving preferences:', error);
+          alert('An error occurred while saving preferences.');
+        });
+    });
+  </script>
+
+</body>
+</html>
