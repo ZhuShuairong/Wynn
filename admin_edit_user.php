@@ -4,8 +4,8 @@ require_once 'admin_header.php';
 require_once 'admin_db_connect.php';
 
 // Optional: Show errors for debugging (remove in production)
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 $message = '';
 $message_type = ''; // 'success' or 'error'
@@ -23,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     $user_id_post = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
 
     $login_name = trim($_POST['login_name']);
-    $real_name  = trim($_POST['real_name']);
     $gender     = trim($_POST['gender']);
     $email      = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
     $new_pass   = $_POST['new_password']; // new password if any
@@ -32,19 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     if ($user_id_post !== $user_id) {
         $message = "User ID mismatch.";
         $message_type = 'error';
-    } elseif (empty($login_name) || empty($real_name) || empty($gender) || !$email) {
+    } elseif (empty($login_name) || empty($gender) || !$email) {
         $message = "All fields except new password must be filled correctly.";
         $message_type = 'error';
     } else {
         // Build SQL
         $sql = "UPDATE user_file
                 SET User_Login_Name = ?,
-                    Real_Name = ?,
                     Gender = ?,
                     Email = ?";
 
-        $params = [$login_name, $real_name, $gender, $email];
-        $types  = "ssss";  // all strings
+        $params = [$login_name, $gender, $email];
+        $types  = "sss";  // all strings
 
         // If user provided a new password
         if (!empty($new_pass)) {
@@ -87,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
 
 // 3. Fetch the user’s current data to display
 $user = null;
-$query = "SELECT User_ID, User_Login_Name, Real_Name, Gender, Email, Add_Time 
+$query = "SELECT User_ID, User_Login_Name, Gender, Email, Add_Time 
           FROM user_file WHERE User_ID = ?";
 $stmt_fetch = $conn->prepare($query);
 if ($stmt_fetch) {
@@ -106,7 +104,7 @@ if ($stmt_fetch) {
     $message_type = 'error';
 }
 
-$conn->close();
+
 ?>
 
 <!-- PAGE CONTENT -->
@@ -143,7 +141,7 @@ $conn->close();
     box-shadow:0 1px 3px rgba(0,0,0,0.1);
     margin-bottom:2rem;
 ">
-    <form action="edit_user.php?id=<?php echo $user_id; ?>" method="POST" style="display:flex; flex-direction:column; gap:1rem;">
+    <form action="admin_edit_user.php?id=<?php echo $user_id; ?>" method="POST" style="display:flex; flex-direction:column; gap:1rem;">
         <!-- Hidden ID field -->
         <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
 
@@ -162,20 +160,7 @@ $conn->close();
             >
         </div>
 
-        <!-- Real Name -->
-        <div>
-            <label for="real_name" style="font-weight:600; margin-bottom:0.5rem; display:block;">
-                Real Name:
-            </label>
-            <input
-                type="text"
-                id="real_name"
-                name="real_name"
-                value="<?php echo htmlspecialchars($user['Real_Name']); ?>"
-                required
-                style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;"
-            >
-        </div>
+
 
         <!-- Gender -->
         <div>
@@ -188,7 +173,7 @@ $conn->close();
                 <option value="Female" <?php echo ($user['Gender'] === 'Female') ? 'selected' : ''; ?>>Female</option>
                 <option value="Other" <?php echo ($user['Gender'] === 'Other') ? 'selected' : ''; ?>>Other</option>
             </select>
-        </div>
+    </div>
 
 
         <!-- Email -->

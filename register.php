@@ -74,40 +74,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
              $stmt_check->execute();
              $stmt_check->store_result();
              if ($stmt_check->num_rows > 0) {
-                 $error_message = "❌ Email or a similar username already exists.";
+                 $error_message = "❌ Email or username already exists.";
              }
              $stmt_check->close();
         } else {
              $error_message = "❌ Error checking existing user: " . $conn->error;
         }
 
-
         // Proceed only if no error message so far (including uniqueness check)
         if ($error_message === null) {
-            // Prepare SQL INSERT statement (Removed Identity_Number, Phone_Number)
+            // Prepare SQL INSERT statement for user_file (Removed Identity_Number, Phone_Number)
             $sql = "INSERT INTO user_file (User_Login_Name, Password, Real_Name, Gender, Email, Add_Time)
                     VALUES (?, ?, ?, ?, ?, NOW())";
             $stmt = $conn->prepare($sql);
 
             if ($stmt) {
-                // Bind parameters (Update types string from "sssssss" to "sssss")
+                // Bind parameters
                 $stmt->bind_param("sssss", $user_login_name, $hashed_password, $real_name, $gender, $email);
 
                 if ($stmt->execute()) {
-                    // Set session variable or handle success as needed
-                    // $_SESSION["registered_user"] = $user_login_name; // Example
-                    $success_message = "✅ Registration successful! You can now login.";
-                    // Optionally clear form fields or redirect
-                    // header("Location: login.php");
-                    // exit();
+                  // Registration into user_file successful.
+                  // Retrieve the newly inserted user id.
+                  $new_user_id = $conn->insert_id;
+              
+                  // Insert a default record into user_dashboard_preferences for this new user.
+                  // The column is now a text (or MySQL SET) field expecting a comma-separated list.
+                  // We auto-select the default three chart types.
+                  $default_chart_types = "line"; // Defaults: auto-select "line", "bar", and "polar"
+                  $sql_pref = "INSERT INTO user_dashboard_preferences (User_ID, visible_chart_types) VALUES (?, ?)";
+                  $stmt_pref = $conn->prepare($sql_pref);
+                  if ($stmt_pref) {
+                      // "i" for integer, "ss" for the two string values.
+                      $stmt_pref->bind_param("is", $new_user_id, $default_chart_types);
+                      if (!$stmt_pref->execute()) {
+                          error_log("Failed to insert default dashboard preferences for user ID $new_user_id: " . $stmt_pref->error);
+                      }
+                      $stmt_pref->close();
+                  } else {
+                      error_log("Failed to prepare dashboard preferences insert for user ID $new_user_id: " . $conn->error);
+                  }
+              
+                  $success_message = "✅ Registration successful! You will be directed to the login page.";
+                  // Optionally clear form fields or redirect.
+                  // header("Location: login.php");
+                  // exit();
                 } else {
                     // Log detailed error for admin, show generic message to user
                     error_log("Registration failed for email $email: " . $stmt->error);
                     $error_message = "❌ Registration failed. Please try again later.";
-                    // Check for specific errors like duplicate entry if uniqueness check wasn't done/failed
-                     if ($conn->errno == 1062) { // Error code for duplicate entry
+                    // Check for duplicate entry
+                    if ($conn->errno == 1062) { // Error code for duplicate entry
                          $error_message = "❌ This email or username is already registered.";
-                     }
+                    }
                 }
                 $stmt->close();
             } else {
@@ -127,38 +145,174 @@ $conn->close();
 <head>
   <meta charset="UTF-8">
   <title>FinSight – Register</title>
-  <link rel="stylesheet" href="static/css/main.css"> <!-- Make sure this path is correct -->
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    /* Basic styles - same as provided */
-    body { font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-    header { background-color: #0A74DA; color: white; padding: 1rem; text-align: center; }
-    nav { display: flex; justify-content: center; gap: 1.5rem; margin-top: 0.5rem; }
-    nav a { color: white; text-decoration: none; font-weight: bold; }
-    main { display: flex; justify-content: center; align-items: center; padding: 2rem 1rem; /* Add padding */ min-height: calc(100vh - 150px); /* Adjust height considering header/footer */ }
-    .register-container { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; max-width: 450px; }
-    h2 { color: #0A74DA; margin-bottom: 1.5rem; text-align: center; }
-    .form-group { margin-bottom: 1rem; }
-    label { font-weight: bold; display: block; margin-bottom: 0.3rem; }
-    input, select { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; /* Include padding in width */ }
-    /* Style for placeholders */
-    ::placeholder { color: #aaa; opacity: 1; /* Firefox */ }
-    :-ms-input-placeholder { color: #aaa; } /* Internet Explorer 10-11 */
-    ::-ms-input-placeholder { color: #aaa; } /* Microsoft Edge */
-
-    button { width: 100%; background-color: #0A74DA; color: white; padding: 0.7rem; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-    button:hover { background-color: #084a9a; }
-    .message { margin-bottom: 1rem; /* Display message above form fields */ padding: 0.7rem; border-radius: 5px; text-align: center; }
-    .error-message { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
-    .success-message { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
-    footer { background-color: #f0f0f0; text-align: center; padding: 1rem; font-size: 0.9rem; margin-top: 2rem; /* Ensure spacing */ }
+    /* Basic Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* Body */
+    body { 
+      font-family: 'Inter', "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: #f8f9fa; 
+      color: #333;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Header */
+    header { 
+      background-color: #0A2540; 
+      color: white; 
+      padding: 1.5rem; 
+      text-align: center; 
+    }
+    
+    header h1 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    nav { 
+      display: flex; 
+      justify-content: flex-end; 
+      gap: 1rem; 
+      margin-top: 0.8rem; 
+    }
+    
+    nav a { 
+      color: rgba(255, 255, 255, 0.85); 
+      text-decoration: none; 
+      font-weight: 500;
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    }
+    
+    nav a:hover { 
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    /* Main Content */
+    main { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      padding: 2rem 1rem; 
+      min-height: calc(100vh - 170px); 
+    }
+    
+    .register-container { 
+      background: white; 
+      padding: 2.5rem; 
+      border-radius: 8px; 
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+      width: 100%; 
+      max-width: 480px;
+      border: 1px solid #E9ECEF;
+    }
+    
+    h2 { 
+      color: #0A2540; 
+      margin-bottom: 1.5rem; 
+      text-align: center; 
+      font-weight: 600;
+    }
+    
+    /* Form Elements */
+    .form-group { 
+      margin-bottom: 1.5rem; 
+    }
+    
+    label { 
+      font-weight: 600; 
+      display: block; 
+      margin-bottom: 0.5rem; 
+      color: #0A2540;
+    }
+    
+    input, select { 
+      width: 100%; 
+      padding: 1rem; 
+      border: 1px solid #E9ECEF; 
+      border-radius: 6px; 
+      font-family: 'Inter', "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1rem;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    }
+    
+    ::placeholder { 
+      color: #adb5bd; 
+      opacity: 1; 
+    }
+    
+    button { 
+      width: 100%; 
+      background-color: #007bff; 
+      color: white; 
+      padding: 1rem 2.5rem; 
+      border: none; 
+      border-radius: 6px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      font-size: 1rem; 
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    
+    button:hover { 
+      background-color: #0056b3; 
+      transform: translateY(-2px);
+    }
+    
+    /* Messages */
+    .message { 
+      margin-bottom: 1.5rem; 
+      padding: 1rem; 
+      border-radius: 6px; 
+      text-align: center; 
+      font-weight: 500; 
+    }
+    
+    .error-message { 
+      background-color: #f8d7da; 
+      color: #721c24; 
+      border: 1px solid #f5c6cb; 
+    }
+    
+    .success-message { 
+      background-color: #d4edda; 
+      color: #155724; 
+      border: 1px solid #c3e6cb; 
+    }
+    
+    /* Footer */
+    footer { 
+      background-color: #0A2540; 
+      text-align: center; 
+      padding: 1.5rem; 
+      font-size: 0.9rem; 
+      color: #ADB5BD;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>Create your FinSight Account</h1>
     <nav>
-      <a href="index.html">Home</a> <!-- Adjust link if needed -->
-      <a href="login.php">Login</a>   <!-- Adjust link if needed -->
+      <a href="index.html">Home</a>
+      <a href="login.php">Login</a>
     </nav>
   </header>
 
@@ -171,12 +325,17 @@ $conn->close();
       <?php endif; ?>
 
       <?php if ($success_message): ?>
-        <div class="message success-message"><?php echo htmlspecialchars($success_message); ?></div>
-        <!-- Optionally hide the form after success -->
-        <?php /* unset($_POST); // Clear POST data to prevent resubmission issues */ ?>
-      <?php else: // Only show the form if there's no success message ?>
-
-      <form method="POST" action="register.php" novalidate> <!-- novalidate disables browser validation to rely on server-side -->
+  <div class="message success-message">
+    <?php echo htmlspecialchars($success_message); ?>
+  </div>
+  <script>
+    // after 3 seconds, send them to login.php
+    setTimeout(function(){
+      window.location.href = 'login.php';
+    }, 3000);
+  </script>
+      <?php else: ?>
+      <form method="POST" action="register.php" novalidate>
         <div class="form-group">
           <label for="first-name">First Name:</label>
           <input type="text" id="first-name" name="first_name" placeholder="e.g., John" required value="<?php echo htmlspecialchars($_POST['first_name'] ?? ''); ?>">
@@ -189,45 +348,39 @@ $conn->close();
 
         <div class="form-group">
           <label for="email">Email:</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+          <input type="email" id="email" name="email" placeholder="e.g., john.doe@example.com" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
         </div>
 
         <div class="form-group">
-          <label for="password">Password:</label>
-          <input type="password" id="password" name="password" placeholder="Min. 8 characters, 1 uppercase" required>
-          <!-- Add password requirements hint -->
-          <small style="display: block; margin-top: 4px; color: #666;">Must be at least 8 characters long and include one uppercase letter.</small>
+          <label for="password">Password (min 8 characters, at least one uppercase):</label>
+          <input type="password" id="password" name="password" placeholder="Create a strong password" required>
         </div>
 
         <div class="form-group">
           <label for="confirm-password">Confirm Password:</label>
-          <input type="password" id="confirm-password" name="confirm_password" placeholder="Re-type your password" required>
+          <input type="password" id="confirm-password" name="confirm_password" placeholder="Enter your password again" required>
         </div>
 
         <div class="form-group">
           <label for="gender">Gender:</label>
           <select id="gender" name="gender" required>
-            <option value="" <?php echo empty($_POST['gender']) ? 'selected' : ''; ?>>-- Select Gender --</option>
-            <option value="Male" <?php echo (($_POST['gender'] ?? '') === 'Male') ? 'selected' : ''; ?>>Male</option>
-            <option value="Female" <?php echo (($_POST['gender'] ?? '') === 'Female') ? 'selected' : ''; ?>>Female</option>
-            <option value="Other" <?php echo (($_POST['gender'] ?? '') === 'Other') ? 'selected' : ''; ?>>Other</option>
-             <option value="Prefer not to say" <?php echo (($_POST['gender'] ?? '') === 'Prefer not to say') ? 'selected' : ''; ?>>Prefer not to say</option> <!-- Added option -->
+            <option value="" disabled selected>Select your gender</option>
+            <option value="Male" <?php echo (isset($_POST['gender']) && $_POST['gender'] == 'Male') ? 'selected' : ''; ?>>Male</option>
+            <option value="Female" <?php echo (isset($_POST['gender']) && $_POST['gender'] == 'Female') ? 'selected' : ''; ?>>Female</option>
+            <option value="Other" <?php echo (isset($_POST['gender']) && $_POST['gender'] == 'Other') ? 'selected' : ''; ?>>Other</option>
           </select>
         </div>
 
-        <!-- Identity Number field REMOVED -->
-        <!-- Phone Number field REMOVED -->
-
         <button type="submit">Register</button>
       </form>
-      <?php endif; // End of the 'else' block for showing the form ?>
-
+      <?php endif; ?>
     </div>
   </main>
 
   <footer>
-    <p>© <?php echo date("Y"); ?> FinSight. All rights reserved.</p> <!-- Dynamic year -->
+    <div class="footer-copyright">
+      © 2025 FinSight Technologies. All rights reserved.
+    </div>
   </footer>
-
 </body>
 </html>

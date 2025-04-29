@@ -137,6 +137,7 @@ if ($stmt_fetch) {
 
 ?>
 
+
 <h1>Edit My Profile</h1>
 
 <?php if ($message): ?>
@@ -144,7 +145,7 @@ if ($stmt_fetch) {
 <?php endif; ?>
 
 <?php if ($admin): // Only show form if admin data was loaded ?>
-<form action="edit_admin_profile.php" method="post" class="admin-form">
+<form action="admin_edit_admin_profile.php" method="post" class="admin-form">
 
     <div class="form-group">
         <label for="login_name">Login Name:</label>

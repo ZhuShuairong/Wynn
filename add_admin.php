@@ -149,58 +149,273 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Admin - FinSight</title>
+    <title>FinSight – Add New Admin</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; padding: 20px; background-color: #f8f9fa; color: #212529; }
-        .container { max-width: 550px; margin: 40px auto; background: #fff; padding: 30px 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: 1px solid #e3e6f0; }
-        h2 { text-align: center; color: #343a40; margin-bottom: 25px; font-weight: 600; }
-        .form-group { margin-bottom: 20px; } /* Increased spacing */
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Modern Font & Base Styling */
+        body {
+            font-family: 'Inter', "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(10, 37, 64, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 123, 255, 0.03) 0%, transparent 50%);
+        }
+        
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Header */
+        h2 {
+            color: #0A2540;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #007bff, #00c6ff);
+        }
+        
+        /* Message Styles */
+        .message {
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            text-align: center;
+            font-weight: 500;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .message::before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .message.success::before {
+            content: "\f058"; /* fa-check-circle */
+            color: #28a745;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .message.error::before {
+            content: "\f057"; /* fa-times-circle */
+            color: #dc3545;
+        }
+        
+        /* Form Styling */
+        form {
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 650px;
+            margin: 0 auto;
+            border: 1px solid #E9ECEF;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #007bff, #00c6ff);
+        }
+        
+        .form-group {
+            margin-bottom: 1.75rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #0A2540;
+            font-size: 0.95rem;
+        }
+        
+        .input-hint {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            display: block;
+        }
+        
         input[type="text"],
         input[type="email"],
         input[type="password"],
         input[type="number"],
         select {
             width: 100%;
-            padding: 12px 15px; /* Slightly larger padding */
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 0.95rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            padding: 1rem 1.25rem;
+            border: 1px solid #E9ECEF;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
         }
-        input:focus, select:focus {
-            border-color: #80bdff;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+            background-color: #fff;
         }
-        /* Style for password hint - adjusted margin */
-        .input-hint {
-            font-size: 0.85em;
-            color: #6c757d; /* Standard Bootstrap secondary text color */
-            margin-top: 5px; /* Added space below the input */
-            display: block;
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c757d'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5rem;
         }
+        
         button[type="submit"] {
-            display: block;
             width: 100%;
-            background-color: #007bff; /* Bootstrap primary blue */
-            color: white;
-            padding: 12px 15px;
+            padding: 1rem 2rem;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            color: #fff;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
-            transition: background-color 0.2s ease;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2rem;
         }
-        button[type="submit"]:hover { background-color: #0056b3; }
-        .message { padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; text-align: center; border: 1px solid transparent; font-size: 0.95rem;}
-        .error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-        .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb;}
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .back-link { display: block; text-align: center; margin-top: 25px; font-size: 0.95rem;}
+        
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        button[type="submit"]:hover::before {
+            left: 100%;
+        }
+        
+        button[type="submit"]:hover {
+            background: linear-gradient(90deg, #0062cc, #004494);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        button[type="submit"] i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .back-link a {
+            display: inline-flex;
+            align-items: center;
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link a i {
+            margin-right: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .back-link a:hover {
+            color: #0A2540;
+        }
+        
+        .back-link a:hover i {
+            transform: translateX(-3px);
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 2rem auto;
+            }
+            
+            form {
+                padding: 1.75rem;
+            }
+            
+            h2 {
+                font-size: 1.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -216,34 +431,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" novalidate>
             <div class="form-group">
-                <label for="username">Admin Login Name (Username):</label>
-                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($username); ?>" required>
+                <label for="username"><i class="fas fa-user"></i> Admin Login Name:</label>
+                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($username); ?>" required placeholder="Enter login name">
             </div>
 
             <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required pattern="(?=.*[A-Z]).{8,}" title="Password must be at least 8 characters long and contain at least one uppercase letter.">
-                 <span class="input-hint">Min. 8 characters, at least one uppercase letter.</span>
-            </div>
-
-             <div class="form-group">
-                <label for="confirm_password">Confirm Password:</label>
-                <input type="password" id="confirm_password" name="confirm_password" required>
+                <label for="password"><i class="fas fa-lock"></i> Password:</label>
+                <input type="password" id="password" name="password" required pattern="(?=.*[A-Z]).{8,}" placeholder="Enter password">
+                <span class="input-hint">Min. 8 characters, at least one uppercase letter.</span>
             </div>
 
             <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
-            </div>
-
-             <div class="form-group">
-                <label for="referral_id">Referral Admin ID:</label> 
-                <input type="number" id="referral_id" name="referral_id" value="<?php echo htmlspecialchars($referral_id); ?>" min="1" required> 
-                 <span class="input-hint">Enter the ID of the existing admin who referred this user.</span> 
+                <label for="confirm_password"><i class="fas fa-lock"></i> Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm password">
             </div>
 
             <div class="form-group">
-                <label for="privileges">Privileges:</label>
+                <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required placeholder="Enter email address">
+            </div>
+
+            <div class="form-group">
+                <label for="referral_id"><i class="fas fa-user-shield"></i> Referral Admin ID:</label> 
+                <input type="number" id="referral_id" name="referral_id" value="<?php echo htmlspecialchars($referral_id); ?>" min="1" required placeholder="Enter referrer's admin ID"> 
+                <span class="input-hint">Enter the ID of the existing admin who referred this user.</span> 
+            </div>
+
+            <div class="form-group">
+                <label for="privileges"><i class="fas fa-key"></i> Privileges:</label>
                 <select id="privileges" name="privileges" required>
                     <option value="">-- Select Privilege --</option>
                     <?php foreach ($privilege_options as $option): ?>
@@ -255,10 +470,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-group">
-                <label for="roles">Role:</label>
+                <label for="roles"><i class="fas fa-user-tag"></i> Role:</label>
                 <select id="roles" name="roles" required>
                     <option value="">-- Select Role --</option>
-                     <?php foreach ($role_options as $option): ?>
+                    <?php foreach ($role_options as $option): ?>
                         <option value="<?php echo htmlspecialchars($option); ?>" <?php echo ($selected_role === $option) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars(ucfirst($option)); ?>
                         </option>
@@ -266,11 +481,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
 
-            <button type="submit">Add Admin</button>
+            <button type="submit"><i class="fas fa-user-plus"></i> Add Admin</button>
         </form>
 
         <div class="back-link">
-            <a href="admin_dashboard.php">Back to Admin Dashboard</a> <!-- Adjust link if needed -->
+            <a href="admin_dashboard.php"><i class="fas fa-arrow-left"></i> Back to Admin Dashboard</a>
         </div>
     </div>
 </body>

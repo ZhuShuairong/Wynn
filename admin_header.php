@@ -25,6 +25,12 @@ function isActive($pageName) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinSight Admin - <?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Dashboard'; ?></title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="admin_style.css">
     <!-- Add any other CSS or JS libraries needed -->
 </head>
@@ -35,12 +41,12 @@ function isActive($pageName) {
             <h2>FinSight Admin</h2>
             <nav>
                 <ul>
-                    <li><a href="admin_dashboard.php" class="<?php echo isActive('admin_dashboard.php'); ?>">Dashboard</a></li>
-                    <li><a href="admin_manage_users.php" class="<?php echo isActive('manage_users.php'); echo isActive('edit_user.php'); echo isActive('edit_user_preferences.php'); ?>">Manage Users</a></li>
-                    <li><a href="admin_manage_admins.php" class="<?php echo isActive('manage_admins.php'); echo isActive('add_admin.php'); ?>">Manage Admins</a></li>
-                    <li><a href="admin_manage_reports.php" class="<?php echo isActive('manage_reports.php'); echo isActive('edit_report.php'); ?>">Manage Reports</a></li>
-                    <li><a href="admin_user_statistics.php" class="<?php echo isActive('user_statistics.php'); ?>">User Statistics</a></li>
-                    <li class="logout-link"><a href="admin_logout.php">Logout</a></li>
+                    <li><a href="admin_dashboard.php" class="<?php echo isActive('admin_dashboard.php'); ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="admin_manage_users.php" class="<?php echo isActive('manage_users.php'); echo isActive('edit_user.php'); echo isActive('edit_user_preferences.php'); ?>"><i class="fas fa-users"></i> Manage Users</a></li>
+                    <li><a href="admin_manage_admins.php" class="<?php echo isActive('manage_admins.php'); echo isActive('add_admin.php'); ?>"><i class="fas fa-user-shield"></i> Manage Admins</a></li>
+                    <li><a href="admin_manage_reports.php" class="<?php echo isActive('manage_reports.php'); echo isActive('edit_report.php'); ?>"><i class="fas fa-file-alt"></i> Manage Reports</a></li>
+                    <li><a href="admin_user_statistics.php" class="<?php echo isActive('user_statistics.php'); ?>"><i class="fas fa-chart-line"></i> User Statistics</a></li>
+                    <li class="logout-link"><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
         </aside>

@@ -68,7 +68,12 @@ foreach ($admins as $a) {
 
 <h1>Manage Administrators</h1>
 
-<a href="add_admin.php" style="display: inline-block; margin-bottom: 1.5rem; background-color: #28a745; color: white; padding: 0.6rem 1.2rem; text-decoration: none; border-radius: 4px;">+ Add New Admin</a>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+  <a href="add_admin.php" style="background-color: #28a745; color: white; padding: 0.6rem 1.2rem; text-decoration: none; border-radius: 4px;">+ Add New Admin</a>
+
+  <input type="text" id="adminSearch" placeholder="🔍 Search by ID, name, or email..." style="padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #ccc; width: 280px;">
+</div>
+
 
 <?php if ($message): ?>
     <div class="message <?php echo $message_type; ?>"><?php echo htmlspecialchars($message); ?></div>
@@ -101,7 +106,7 @@ foreach ($admins as $a) {
                         if ($admin['Admin_ID'] == $current_admin_id) {
                             echo '<a href="admin_edit_admin_profile.php" class="edit-btn" style="margin-right:0.5rem;">Edit My Profile</a>';
                         } else {
-                            echo '<a href="edit_other_admin.php?id=' . $admin['Admin_ID'] . '" class="edit-btn" style="margin-right:0.5rem;">Edit</a>';
+                            echo '<a href="admin_edit_other_admin.php?id=' . $admin['Admin_ID'] . '" class="edit-btn" style="margin-right:0.5rem;">Edit</a>';
                         }
                     } elseif ($current_privileges === 'edit') {
                         // Can only edit self
@@ -129,3 +134,20 @@ foreach ($admins as $a) {
 </table>
 
 <?php require_once 'admin_footer.php'; ?>
+
+<script>
+document.getElementById('adminSearch').addEventListener('input', function () {
+  const keyword = this.value.trim().toLowerCase();
+  const rows = document.querySelectorAll('tbody tr');
+
+  rows.forEach(row => {
+    const id = row.children[0]?.textContent.trim().toLowerCase() || '';
+    const name = row.children[1]?.textContent.trim().toLowerCase() || '';
+    const email = row.children[2]?.textContent.trim().toLowerCase() || '';
+
+    const match = id.includes(keyword) || name.includes(keyword) || email.includes(keyword);
+    row.style.display = match ? '' : 'none';
+  });
+});
+</script>
+

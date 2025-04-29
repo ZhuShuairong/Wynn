@@ -112,7 +112,8 @@ def run_pipeline():
     try:
         # Assumes topic_modeler.py now runs the Gemini tagging pipeline
         topic_modeler.perform_topic_modeling() # This function name is kept, but logic changed
-        print("----- Step 5: Gemini Tagging Complete -----")
+        print("----- Step 5: Gemini Tagging Complete -----") 
+
         logging.info("----- Step 5: Gemini Tagging Complete -----\n")
     except Exception as e:
          print("ERROR during Gemini Tagging. Check logs.")

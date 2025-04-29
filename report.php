@@ -127,127 +127,284 @@ if (!empty($topic)) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FinSight – Report: <?php echo $page_title_topic; ?></title>
-  <style>
-    /* --- Basic resets and layout --- */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { font-size: 100%; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #f8f9fa; color: #212529; display: flex; flex-direction: column;
-      min-height: 100vh; line-height: 1.6;
-    }
-    header, main, footer { padding: 1rem 2rem; width: 100%; }
+    <meta charset="UTF-8">
+    <title>FinSight – Report Summary</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Basic Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(10, 37, 64, 0.02) 0%, transparent 60%),
+                radial-gradient(circle at 85% 85%, rgba(0, 123, 255, 0.03) 0%, transparent 60%);
+        }
 
-    /* --- Header Styling --- */
-    header { background-color: #007bff; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding-top: 1.5rem; padding-bottom: 1.5rem; }
-    header h1 { margin-bottom: 0.5rem; font-weight: 600; font-size: 1.75rem; text-align: center; }
-    .report-info { text-align: center; margin-bottom: 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); }
-    .report-info strong { color: #fff; }
-    .top-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1rem; }
+        /* Header */
+        header {
+            background: linear-gradient(120deg, #0A2540 0%, #103155 100%);
+            color: #fff;
+            padding: 1.5rem 2rem;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
 
-    /* --- Button Styling --- */
-    .btn { display: inline-block; background-color: #0056b3; color: #ffffff; text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 0.25rem; font-weight: 500; font-size: 0.95rem; transition: background-color 0.2s ease-in-out, transform 0.1s ease, box-shadow 0.2s ease; border: none; cursor: pointer; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .btn:hover { background-color: #00418a; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
-    .btn:active { transform: translateY(0px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #007bff, #00c6ff);
+        }
 
-    /* --- Main Content Area --- */
-    main {
-        flex: 1; background: #ffffff; margin: 1.5rem auto; padding: 2rem 2.5rem;
-        border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        max-width: 1140px; /* Keep increased width */
-        width: 90%;
-    }
+        header h1 {
+            text-align: center;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
 
-    /* --- Report Content Styling (Using p and h3) --- */
-    .report-content { color: #343a40; font-size: 1rem; }
+        header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
 
-    /* Style for paragraphs (<p>) */
-    .report-content p {
-        /* <<< INCREASED SPACE BETWEEN PARAGRAPHS */
-        margin-bottom: 4em; /* Increased - Adjust as needed */
-        text-align: justify; /* Justify text for report look */
-        line-height: 1.75; /* Adjust line height within paragraph */
-        overflow-wrap: break-word;
-        word-wrap: break-word;
-        hyphens: auto;
-    }
-    .report-content p:last-child {
-        margin-bottom: 0; /* No space after the very last paragraph */
-    }
+        .header-nav {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0.75rem;
+        }
 
-    /* Style for subtitles (<h3>) */
-    .report-content h3 { /* Changed from strong to h3 */
-        font-weight: 700;
-        /* display: block; REMOVED - h3 is block by default */
-        margin-top: 1.8em; /* Space above subtitle */
-        /* <<< DECREASED SPACE BELOW SUBTITLE */
-        margin-bottom: 0.5em; /* Adjust as needed */
-        font-size: 1.3em; /* Slightly larger subtitle */
-        color: #0056b3;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 0.2em;
-        line-height: 1.4;
-    }
-    /* Remove extra top margin if heading is the very first element */
-    .report-content > *:first-child {
-         margin-top: 0 !important;
-    }
-    /* OR specifically target first h3 */
-    /* .report-content h3:first-child { margin-top: 0; } */
+        .header-nav a {
+            text-decoration: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+        }
 
-    /* --- Error/Info Message Styling (Keep as is) --- */
-    .error-message, .info-message { border: 1px solid transparent; padding: 1rem 1.25rem; margin-bottom: 1rem; border-radius: 0.25rem; font-weight: normal; }
-    .error-message { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
-    .info-message { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
+        .header-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    /* --- Footer Styling (Keep as is) --- */
-    footer { text-align: center; background-color: #e9ecef; padding: 1.5rem 0; color: #6c757d; font-size: 0.9rem; border-top: 1px solid #dee2e6; margin-top: auto; }
+        .header-nav a i {
+            margin-right: 0.5rem;
+        }
 
-    /* --- Responsive Adjustments (Keep as is) --- */
-    @media (min-width: 768px) {
-      header { display: flex; justify-content: space-between; align-items: center; }
-      header h1, .report-info { text-align: left; margin-bottom: 0; }
-      .top-buttons { justify-content: flex-end; margin-top: 0; margin-bottom: 0; }
-    }
-    @media (max-width: 576px) {
-      header, main { padding: 1rem 1rem; }
-      main { margin: 1rem auto; width: 95%; padding: 1.5rem 1.5rem; max-width: 100%; }
-      header h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; }
-      .report-info { font-size: 0.85rem; margin-bottom: 0.8rem; text-align: center; }
-      .top-buttons { justify-content: center; }
-      .btn { padding: 0.5rem 1rem; font-size: 0.9rem; }
-      .report-content { font-size: 0.95rem; }
-      .report-content h3 { font-size: 1.1em; } /* Adjusted heading size for mobile */
-    }
-  </style>
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .report-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e5e7eb;
+            position: relative;
+        }
+
+        .report-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #007bff 0%, #0056b3 100%);
+            border-radius: 12px 0 0 12px;
+        }
+
+        .report-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .report-header h2 {
+            color: #0A2540;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .download-section {
+            background: linear-gradient(90deg, #f8f9fa 0%, #f2f5fa 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .download-btn {
+            background: linear-gradient(90deg, #007bff 0%, #0069d9 100%);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(90deg, #0062cc 0%, #004494 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .report-content {
+            color: #444;
+            line-height: 1.8;
+        }
+
+                /* Add space BELOW each paragraph */
+        .report-content p {
+            margin-bottom: 2em; 
+        }
+
+        .report-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .report-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .report-section h3 {
+            color: #0A2540;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(120deg, #0A2540 0%, #103155 100%);
+            color: #ADB5BD;
+            text-align: center;
+            padding: 1.5rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            main {
+                padding: 1rem;
+            }
+
+            .report-container {
+                padding: 1.5rem;
+            }
+
+            .download-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .download-btn {
+                text-align: center;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
 
   <!-- Header -->
   <header>
-      <div>
-          <h1>FinSight Report: <?php echo $page_title_topic; ?></h1>
-          <?php if ($report_found): ?>
-              <div class="report-info">
-                  Generated on: <strong><?php echo $generated_time_display; ?></strong>
-              </div>
-          <?php endif; ?>
-      </div>
-      <div class="top-buttons">
-          <a href="dashboard.html" class="btn">Back to Dashboard</a>
-          <a href="<?php echo $download_link; ?>" class="btn" <?php if (!$report_found) echo 'style="display:none;"';?> >Download Report</a>
-          <a href="logout.php" class="btn">Logout</a>
+      <h1>FinSight Report: <?php echo $page_title_topic; ?></h1>
+      <?php if ($report_found): ?>
+          <div class="header-nav">
+              <span>Generated on: <strong><?php echo $generated_time_display; ?></strong></span>
+          </div>
+      <?php endif; ?>
+      <div class="header-nav">
+          <a href="dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
+          <a href="<?php echo $download_link; ?>" <?php if (!$report_found) echo 'style="display:none;"';?>><i class="fas fa-download"></i> Download</a>
+          <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
       </div>
   </header>
 
   <!-- Main Content -->
   <main>
-    <!-- The PHP block now echoes content wrapped in <p> and <h3> tags -->
-    <div class="report-content">
-      <?php echo $report_content_html; ?>
+    <div class="report-container">
+      <div class="report-content">
+        <?php echo $report_content_html; ?>
+      </div>
     </div>
   </main>
 

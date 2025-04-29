@@ -19,16 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_user'])) {
         $conn->begin_transaction();
 
         try {
-            // Delete from related tables first to avoid foreign key constraints
-            $stmt_interest = $conn->prepare("DELETE FROM user_interest_file WHERE User_ID = ?");
-            $stmt_interest->bind_param("i", $user_id_to_delete);
-            $stmt_interest->execute();
-            $stmt_interest->close();
-
-            $stmt_dashboard = $conn->prepare("DELETE FROM user_preferred_dashboard_file WHERE User_ID = ?");
-            $stmt_dashboard->bind_param("i", $user_id_to_delete);
-            $stmt_dashboard->execute();
-            $stmt_dashboard->close();
 
             // Now delete from the main user table
             $stmt_user = $conn->prepare("DELETE FROM user_file WHERE User_ID = ?");
@@ -76,6 +66,11 @@ if ($result && $result->num_rows > 0) {
 
 <h1>Manage Users</h1>
 
+<div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+  <input type="text" id="userSearch" placeholder="🔍 Search by ID, name, or email..." style="padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #ccc; width: 280px;">
+</div>
+
+
 <?php if ($message): ?>
     <div class="message <?php echo $message_type; ?>"><?php echo htmlspecialchars($message); ?></div>
 <?php endif; ?>
@@ -100,7 +95,6 @@ if ($result && $result->num_rows > 0) {
                     <td><?php echo date('Y-m-d H:i', strtotime($user['Add_Time'])); ?></td>
                     <td>
                         <a href="admin_edit_user.php?id=<?php echo $user['User_ID']; ?>" class="edit-btn">Edit Info</a>
-                        <a href="admin_edit_user_preferences.php?id=<?php echo $user['User_ID']; ?>" class="prefs-btn">Edit Prefs</a>
                         <form action="admin_manage_users.php" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete user <?php echo htmlspecialchars($user['User_Login_Name']); ?>? This action cannot be undone.');">
                             <input type="hidden" name="user_id" value="<?php echo $user['User_ID']; ?>">
                             <button type="submit" name="delete_user" class="delete-btn">Delete</button>
@@ -117,3 +111,19 @@ if ($result && $result->num_rows > 0) {
 </table>
 
 <?php require_once 'admin_footer.php'; ?>
+
+<script>
+document.getElementById('userSearch').addEventListener('input', function () {
+  const keyword = this.value.trim().toLowerCase();
+  const rows = document.querySelectorAll('tbody tr');
+
+  rows.forEach(row => {
+    const id = row.children[0]?.textContent.trim().toLowerCase() || '';
+    const name = row.children[1]?.textContent.trim().toLowerCase() || '';
+    const email = row.children[2]?.textContent.trim().toLowerCase() || '';
+
+    const match = id.includes(keyword) || name.includes(keyword) || email.includes(keyword);
+    row.style.display = match ? '' : 'none';
+  });
+});
+</script>

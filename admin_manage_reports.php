@@ -49,10 +49,14 @@ if ($result && $result->num_rows > 0) {
      $message_type = 'error';
 }
 
-$conn->close();
 ?>
 
 <h1>Manage Reports</h1>
+
+<div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+  <input type="text" id="reportSearch" placeholder="🔍 Search by ID or topic..." style="padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #ccc; width: 280px;">
+</div>
+
 
 <?php if ($message): ?>
     <div class="message <?php echo $message_type; ?>"><?php echo htmlspecialchars($message); ?></div>
@@ -95,3 +99,18 @@ $conn->close();
 </table>
 
 <?php require_once 'admin_footer.php'; ?>
+
+<script>
+document.getElementById('reportSearch').addEventListener('input', function () {
+  const keyword = this.value.trim().toLowerCase();
+  const rows = document.querySelectorAll('tbody tr');
+
+  rows.forEach(row => {
+    const id = row.children[0]?.textContent.trim().toLowerCase() || '';
+    const topic = row.children[1]?.textContent.trim().toLowerCase() || '';
+
+    const match = id.includes(keyword) || topic.includes(keyword);
+    row.style.display = match ? '' : 'none';
+  });
+});
+</script>

@@ -3,116 +3,333 @@
 <head>
   <meta charset="UTF-8">
   <title>FinSight – Trending Topics</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     /* Basic Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    html, body { /* Ensure html and body take full height */
-        height: 100%;
+    html, body { 
+      height: 100%;
     }
 
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       color: #333;
-      background-color: #f2f2f2;
-      /* Removed padding-top, handle spacing differently */
-      display: flex; /* Use flexbox for overall page layout */
-      flex-direction: column; /* Stack header, layout, footer vertically */
-      min-height: 100vh; /* Make body at least the viewport height */
+      background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(10, 37, 64, 0.02) 0%, transparent 60%),
+        radial-gradient(circle at 85% 85%, rgba(0, 123, 255, 0.03) 0%, transparent 60%);
     }
 
     /* Header */
     header {
-      /* Removed fixed positioning - let it be part of the flex flow */
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: linear-gradient(135deg, #0A74DA 0%, #0570b8 100%);
+      background: linear-gradient(120deg, #0A2540 0%, #103155 100%);
       color: #fff;
-      padding: 1rem 2rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      flex-shrink: 0; /* Prevent header from shrinking */
+      padding: 1.5rem 2rem;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      z-index: 100;
     }
-    header h1 { margin: 0; font-weight: 600; letter-spacing: 1px; margin-bottom: 0.5rem; text-align: center; }
-    .header-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
-    .header-nav a { text-decoration: none; background-color: rgba(255, 255, 255, 0.15); color: #fff; padding: 0.5rem 1rem; border-radius: 5px; font-weight: 600; transition: background-color 0.2s; border: 1px solid rgba(255, 255, 255, 0.3); }
-    .header-nav a:hover { background-color: rgba(255, 255, 255, 0.3); }
 
-    /* Layout: Sidebar + Main Content */
-    .layout {
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #007bff, #00c6ff);
+    }
+
+    header h1 {
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+      text-align: center;
+      position: relative;
+      display: inline-block;
+    }
+
+    header h1::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .header-nav {
       display: flex;
-      flex-grow: 1; /* Crucial: Make this container grow to fill remaining space */
-      padding: 1.5rem 1rem; /* Add padding around the layout */
-      gap: 1.5rem;
-      width: 100%; /* Ensure layout takes full width */
-      max-width: 1400px; /* Optional: Set a max width for very wide screens */
-      margin: 0 auto; /* Center layout if max-width is set */
+      gap: 15px;
+      justify-content: flex-end;
+      align-items: center;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    .header-nav a {
+      text-decoration: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: flex;
+      align-items: center;
+    }
+
+    .header-nav a i {
+      margin-right: 0.5rem;
+      font-size: 0.9rem;
+      transition: transform 0.3s ease;
+    }
+
+    .header-nav a:hover {
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Layout */
+    .layout {
+      flex: 1;
+      display: flex;
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      align-items: flex-start;
     }
 
     /* Sidebar */
     aside.sidebar {
-      width: 300px;
-      flex-shrink: 0;
-      padding: 1rem;
-      background-color: #fff; /* Added background for clarity */
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      height: fit-content; /* Let height be determined by content */
+      width: 320px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      border: 1px solid #e5e7eb;
+      position: sticky;
+      top: 2rem;
     }
-    .sidebar h2 { margin-bottom: 1rem; color: #0A74DA; font-size: 1.2rem; border-bottom: 2px solid #0A74DA; padding-bottom: 0.5rem; }
-    .sidebar table { width: 100%; border-collapse: collapse; background-color: transparent; } /* Removed background from table */
-    .sidebar table thead { background-color: transparent; } /* Removed thead background */
-    .sidebar table th, .sidebar table td { text-align: left; padding: 0.75rem 0.5rem; border-bottom: 1px solid #eee; font-size: 0.9rem; } /* Reduced padding slightly */
-    .sidebar table thead th { font-weight: 700; color: #333; text-transform: none; } /* Removed uppercase */
-    .sidebar table tbody tr:last-child td { border-bottom: none; }
-    .sidebar .topic-link { color: #0A74DA; text-decoration: none; font-weight: 600; display: block; padding: 0.25rem 0; } /* Adjusted padding */
-    .sidebar .topic-link:hover { text-decoration: underline; background-color: #f0f8ff; }
+
+    .sidebar h2 {
+      color: #0A2540;
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #007bff;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar h2 i {
+      margin-right: 0.5rem;
+      color: #007bff;
+    }
+
+    .sidebar table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .sidebar thead {
+      background: linear-gradient(90deg, #F8F9FA 0%, #f2f5fa 100%);
+    }
+
+    .sidebar th, .sidebar td {
+      padding: 0.85rem 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+    }
+
+    .sidebar th {
+      font-weight: 600;
+      color: #0A2540;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.75rem;
+    }
+
+    .topic-link {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .topic-link:hover {
+      color: #0056b3;
+      transform: translateX(4px);
+    }
 
     /* Main Content */
     main.content {
-      flex-grow: 1;
-      /* Optional styling for main area */
-      /* background-color: #fff; */
-      /* padding: 1.5rem; */
-      /* border-radius: 8px; */
-      /* box-shadow: 0 1px 3px rgba(0,0,0,0.1); */
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      border: 1px solid #e5e7eb;
+      width: 800px;         /* 新增：固定宽度 */
+      min-width: 800px;     /* 可选：防止变窄 */
+      max-width: 800px;     /* 可选：防止变宽 */
     }
-    .report-button-container { margin-bottom: 1.5rem; text-align: right; }
-    .report-btn { display: inline-block; text-decoration: none; background-color: #28a745; color: #fff; padding: 0.6rem 1.2rem; border-radius: 5px; font-weight: 600; transition: background-color 0.2s; border: none; cursor: pointer; }
-    .report-btn:hover { background-color: #218838; }
-    .topic-entries h2 { margin-bottom: 1rem; color: #333; font-size: 1.4rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ddd;}
 
-    /* Article Box Styling */
-    .article-box { background-color: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); padding: 1rem 1.5rem; margin-bottom: 1rem; text-align: left; }
-    .article-box .article-link { font-weight: 600; font-size: 1.1rem; color: #0A74DA; text-decoration: none; display: block; margin-bottom: 0.3rem; }
-    .article-box .article-link:hover { text-decoration: underline; }
-    .article-box .created-time { display: block; color: #666; font-size: 0.85rem; }
+    .report-button-container {
+      margin-bottom: 2rem;
+      text-align: right;
+    }
+
+    .report-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2);
+    }
+
+    .report-btn:hover {
+      background: linear-gradient(90deg, #27ae60 0%, #219a52 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
+    }
+
+    .article-box {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .article-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #007bff 0%, #0056b3 100%);
+      border-radius: 10px 0 0 10px;
+    }
+
+    .article-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      border-color: #007bff;
+    }
+
+    .article-link {
+      color: #0A2540;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      display: block;
+      transition: color 0.2s ease;
+    }
+
+    .article-link:hover {
+      color: #007bff;
+    }
+
+    .created-time {
+      color: #6b7280;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
     /* Footer */
     footer {
-      background-color: #e9ecef;
-      padding: 1rem;
+      background: linear-gradient(120deg, #0A2540 0%, #103155 100%);
+      color: #ADB5BD;
       text-align: center;
+      padding: 1.5rem;
       font-size: 0.9rem;
-      color: #6c757d;
-      border-top: 1px solid #dee2e6;
-      flex-shrink: 0; /* Prevent footer from shrinking */
-      margin-top: auto; /* Pushes footer down in flex column */
+      position: relative;
+    }
+
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+        padding: 1rem;
+      }
+
+      aside.sidebar {
+        width: 100%;
+        position: static;
+      }
+
+      main.content {
+        padding: 1.5rem;
+      }
+
+      .header-nav {
+        gap: 0.5rem;
+      }
+
+      .header-nav a {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
     }
   </style>
+</head>
 </head>
 <body>
   <!-- Header -->
   <header>
       <h1>FinSight Dashboard</h1>
       <nav class="header-nav">
-          <a href="dashboard.html">Back to Dashboard</a>
-          <a href="customization.html">Dashboard Customization</a>
-          <!-- Removed Report and Edit Interest links -->
-          <a href="logout.php">Logout</a> <!-- Assuming server-side -->
+          <a href="dashboard.php?user_id=<?php echo urlencode($_GET['user_id']); ?>">Back to Dashboard</a>
+          <a href="logout.html">Logout</a> <!-- Assuming server-side -->
       </nav>
   </header>
-
   <!-- Main Layout: Sidebar + Content -->
   <div class="layout">
       <!-- Sidebar -->
@@ -131,7 +348,6 @@
               </tbody>
           </table>
       </aside>
-
       <!-- Main Content Area -->
       <main class="content">
           <div class="topic-entries">
@@ -146,18 +362,17 @@
           </div>
       </main>
   </div>
-
   <!-- Footer -->
   <footer>
       <p>© 2025 FinSight. All rights reserved.</p>
   </footer>
-
   <!-- JavaScript Section -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Get topic from URL query parameter (?topic=...)
         const params = new URLSearchParams(window.location.search);
         const topic = params.get('topic'); // Will be null if no topic is in the URL
+        const userId = params.get('user_id'); // Retrieve user_id from the URL
 
         // Get references to DOM elements
         const topicHeading = document.getElementById('topic-main-heading');
@@ -166,7 +381,7 @@
         const sidebarTopicsBody = document.getElementById('trending-topics-body');
 
         // --- Populate Sidebar Topics (Always runs) ---
-        fetch('get_dashboard_data.php')
+        fetch('get_dashboard_data.php?user_id=' + encodeURIComponent(userId))
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok for dashboard data');
                 return response.json();
@@ -182,7 +397,7 @@
                          // Create table rows from the fetched topic data
                          sidebarTopicsBody.innerHTML = data.trending_topics.map(t => `
                             <tr>
-                              <td><a href="trending_topics.html?topic=${encodeURIComponent(t.Topic)}" class="topic-link">${t.Topic}</a></td>
+                              <td><a href="trending_topics.html?topic=${encodeURIComponent(t.Topic)}&user_id=${encodeURIComponent(userId)}" class="topic-link">${t.Topic}</a></td>
                               <td>${t.article_count}</td>
                             </tr>
                           `).join('');
@@ -203,27 +418,23 @@
         // --- Populate Main Content Area (Only if a topic is selected in the URL) ---
         if (topic) {
             const decodedTopic = decodeURIComponent(topic); // Decode topic name for display
-
             // Update the main heading
             if (topicHeading) {
                 topicHeading.textContent = `Articles Related to "${decodedTopic}"`;
             }
-
             // Add the "View Report Summary" Button dynamically
             if (reportButtonContainer) {
                  reportButtonContainer.innerHTML = ''; // Clear placeholder/previous button
                  const reportBtn = document.createElement('a');
-                 reportBtn.href = `report.php?topic=${encodeURIComponent(topic)}`; // Link to report.php with the current topic
+                 reportBtn.href = `report.php?topic=${encodeURIComponent(topic)}&user_id=${encodeURIComponent(userId)}`; // Link to report.php with the current topic
                  reportBtn.textContent = `View And Download Report Summary for "${decodedTopic}"`;
                  reportBtn.classList.add('report-btn');
-                 reportBtn.target = "_blank"; // Open report in a new tab
                  reportButtonContainer.appendChild(reportBtn); // Add button to the page
             }
-
             // Fetch and display articles for the selected topic
             if (articleBoxes) {
                 articleBoxes.innerHTML = `<p>Loading articles for "${decodedTopic}"...</p>`; // Show loading message
-                fetch(`get_specific_topic.php?topic=${encodeURIComponent(topic)}`)
+                fetch(`get_specific_topic.php?topic=${encodeURIComponent(topic)}&user_id=${encodeURIComponent(userId)}`)
                     .then(response => {
                         if (!response.ok) throw new Error('Network response was not ok for specific topic');
                         return response.json();
@@ -233,7 +444,6 @@
                         if (!Array.isArray(data)) {
                             throw new Error('Invalid data structure for specific topic');
                         }
-
                         // --- FILTERING LOGIC START ---
                         const seenTitles = new Set();
                         const uniqueArticles = data.filter(entry => {
@@ -247,8 +457,6 @@
                             return false; // Discard article (empty title or duplicate)
                         });
                         // --- FILTERING LOGIC END ---
-
-
                         // Display articles or "not found" message using the *filtered* list
                         if (uniqueArticles.length === 0) { // Check the length of the filtered array
                             articleBoxes.innerHTML = `<div class="article-box">No unique articles found for "${decodedTopic}".</div>`;
@@ -268,14 +476,13 @@
                         articleBoxes.innerHTML = `<div class="article-box">Error loading articles for "${decodedTopic}". Please try again.</div>`;
                     });
             }
-
         } else {
             // Default view when no topic is selected in the URL
             if (topicHeading) {
                 topicHeading.textContent = "Select a Topic"; // Reset heading
             }
-             if (reportButtonContainer) {
-                 reportButtonContainer.innerHTML = ''; // Ensure no report button is shown
+            if (reportButtonContainer) {
+                reportButtonContainer.innerHTML = ''; // Ensure no report button is shown
             }
             if (articleBoxes) {
                 // Keep the default message defined in the HTML
@@ -284,3 +491,5 @@
         }
     });
   </script>
+</body>
+</html>

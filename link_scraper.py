@@ -19,7 +19,7 @@ except (ImportError, AssertionError): # Catch both ImportError and the specific 
     gs = None
 
 
-def get_links_selenium(url, timeout, output_filename):
+def get_links_selenium(url, timeout, output_filename, mode='w'):
     """
     Retrieves all links from a webpage using Selenium and saves them to a CSV file.
     Uses google_colab_selenium if available, otherwise falls back to standard Selenium.
@@ -36,6 +36,10 @@ def get_links_selenium(url, timeout, output_filename):
             options.add_argument('--no-sandbox') # Often needed in containerized environments
             options.add_argument('--disable-dev-shm-usage') # Overcomes limited resource problems
             options.add_argument('--disable-gpu') # Applicable to headless
+            options.add_argument('--no-proxy-server') # Add this line to disable proxy
+            # ↓↓↓ 添加这行打印语句 ↓↓↓
+            print("DEBUG: Chrome Arguments:", options.arguments)
+            # ↑↑↑ 添加这行打印语句 ↑↑↑
             driver = webdriver.Chrome(options=options)
             logging.info("Using standard Selenium headless Chrome driver.")
 
@@ -63,10 +67,10 @@ def get_links_selenium(url, timeout, output_filename):
              logging.warning(f"No links extracted from {url}.")
              return False # Indicate failure or no links found
 
-        # Overwrite the file with new links
-        with open(output_filename, 'w', newline='', encoding='utf-8') as csvfile:
+        with open(output_filename, mode, newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['Links']) # Write header
+            if mode == 'w':  # Write header only when overwriting
+                writer.writerow(['Links']) # Write header
             for link in links:
                 writer.writerow([link])
         logging.info(f"Successfully saved {len(links)} links to {output_filename}")
@@ -89,15 +93,22 @@ def scrape_main_links():
     Scrape the main website configured in config.py for links.
     """
     logging.info("Starting main link scraping process...")
-    success = get_links_selenium(
-        url=config.SCRAPER_INPUT_URL,
-        timeout=config.SELENIUM_TIMEOUT,
-        output_filename=config.RAW_LINKS_CSV
-    )
-    if success:
-        logging.info("Main link scraping completed successfully.")
-    else:
-        logging.error("Main link scraping failed.")
+    base_url = config.SCRAPER_INPUT_URL.rsplit("p=", 1)[0]  # Assumes SCRAPER_INPUT_URL ends with 'p=1'
+    first = True
+    for page in config.SCRAPER_PAGES:
+        url = base_url + f"p={page}"
+        mode = 'w' if first else 'a'
+        success = get_links_selenium(
+            url=url,
+            timeout=config.SELENIUM_TIMEOUT,
+            output_filename=config.RAW_LINKS_CSV,
+            mode=mode
+        )
+        if success:
+            logging.info(f"Link scraping completed for {url}")
+        else:
+            logging.error(f"Link scraping failed for {url}")
+        first = False
 
 # --- Add this block to make the script runnable ---
 if __name__ == "__main__":

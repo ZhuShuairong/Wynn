@@ -64,23 +64,40 @@ def filter_links():
                     duplicate_count += 1
                     continue
 
-                # 2. Parse and check domain
+                # 2. Parse and check if URL should be excluded
                 try:
-                    # Handle potential schema-less URLs
+                    # 解析URL
                     parsed = urlparse(url if '//' in url else '//' + url)
                     domain = parsed.netloc
+                    path = parsed.path
+                    
                     if not domain:
-                         logging.warning(f"Could not parse domain from URL: {url}. Skipping.")
-                         filtered_count += 1
-                         continue
-
-                    # Check against excluded domains
-                    is_excluded = False
-                    for excluded_domain in excluded_domains:
-                        if _is_subdomain(domain, excluded_domain):
-                            is_excluded = True
-                            break
-                    if is_excluded:
+                        logging.warning(f"Could not parse domain from URL: {url}. Skipping.")
+                        filtered_count += 1
+                        continue
+                    
+                    # 检查是否应该排除
+                    should_exclude = False
+                    
+                    for excluded in excluded_domains:
+                        # 处理带路径的排除规则（如 www.yicai.com/video）
+                        if '/' in excluded:
+                            excluded_domain = excluded.split('/')[0]
+                            excluded_path = '/' + '/'.join(excluded.split('/')[1:])
+                            
+                            # 检查域名是否匹配且路径以排除路径开头
+                            if domain == excluded_domain and path.startswith(excluded_path):
+                                logging.info(f"排除URL: {url} - 匹配排除规则: {excluded}")
+                                should_exclude = True
+                                break
+                        # 处理纯域名的排除规则（如 xueqiu.com）
+                        else:
+                            if _is_subdomain(domain, excluded):
+                                logging.info(f"排除URL: {url} - 域名匹配排除规则: {excluded}")
+                                should_exclude = True
+                                break
+                    
+                    if should_exclude:
                         filtered_count += 1
                         continue
 
@@ -120,7 +137,7 @@ if __name__ == "__main__":
     import logging
     import os # Needed for exists check potentially
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format='%(asctime)s - %(levelname)-8s - %(name)-12s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )

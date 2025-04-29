@@ -37,31 +37,14 @@ def configure_gemini():
 
 # --- REVISED: Consistent Filename Sanitization (Removes Protocol, Keeps Dots) ---
 def sanitize_url_to_filename_stem(url):
-    """
-    Converts a URL into a safe filename stem, REMOVING the protocol
-    and replacing common path/query separators and invalid characters
-    with underscores, but KEEPING dots (like in domain names).
-    THIS LOGIC MUST MATCH how files were saved in data_cleaner.py.
-    """
     if not url:
         return None
-    # 1. Remove protocol (http:// or https://)
-    sanitized = re.sub(r'^https?://', '', url)
+    stem = re.sub(r'^https?://', '', url)
+    # 2. replace ANY character that is NOT letter, digit, or hyphen → underscore
+    stem = re.sub(r'[^0-9A-Za-z\-]+', '_', stem)
+    # 3. trim leading/trailing underscores
+    return stem.strip('_')
 
-    # 2. Replace common invalid/separator filename characters with underscores
-    #    Includes: / \ : * ? " < > | & = # (Characters often found in paths/queries)
-    #    CRUCIALLY: Does NOT include '.' in this list anymore.
-    sanitized = re.sub(r'[\\/:*?"<>|&=#]+', '_', sanitized)
-
-    # 3. Remove potential leading/trailing underscores created by replacements
-    #    (e.g., if URL ended with / or query string)
-    sanitized = sanitized.strip('_')
-
-    # Optional: Limit length if needed
-    # MAX_FILENAME_LEN = 100 # Example limit
-    # sanitized = sanitized[:MAX_FILENAME_LEN] if len(sanitized) > MAX_FILENAME_LEN else sanitized
-
-    return sanitized
 
 # --- MODIFIED: _find_cleaned_file_path ---
 def _find_cleaned_file_path(identifier, cleaned_dir):

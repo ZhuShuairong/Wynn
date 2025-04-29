@@ -1,22 +1,26 @@
 <?php
-// Database configuration (Update with your credentials)
-$servername = "localhost"; // Often "localhost"
-$username = "root";     // Your database username
-$password = "";          // Your database password
-$dbname = "wynn_fyp"; // Your database name
+// Database configuration
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "wynn_fyp";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// --- Use Exception Handling ---
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // Enable mysqli exceptions
 
-// Check connection
-if ($conn->connect_error) {
-    // In a real app, log this error and show a user-friendly message
-    die("Connection failed: " . $conn->connect_error);
+$conn = null; // Initialize $conn to null
+
+try {
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn->set_charset("utf8mb4"); // Set charset only on successful connection
+} catch (mysqli_sql_exception $e) {
+    // Connection failed. $conn remains null.
+    // Optionally log the error securely:
+    // error_log("Database connection failed: " . $e->getMessage());
+    // Do NOT echo or die here.
 }
 
-// Set character set to UTF-8 (good practice)
-$conn->set_charset("utf8mb4");
+// Reset reporting to default if needed elsewhere, though often not necessary
+// mysqli_report(MYSQLI_REPORT_OFF);
 
-// Note: No need to close connection here; it will be closed implicitly
-// when the script finishes, or explicitly in scripts that use it.
 ?>
